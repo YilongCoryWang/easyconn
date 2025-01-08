@@ -8,7 +8,10 @@ router.post("/login", async (req, res) => {
   const email = req.body.email;
   const password = crypto.hash("sha1", req.body.password); //test
 
-  const user = await User.findOne({ email, password });
+  const user = await User.findOne(
+    { email, password },
+    "-__v -password -friends"
+  );
   if (!user) {
     res.status(404).send({ message: "User Not Found" });
     return;

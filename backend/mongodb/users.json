@@ -5,11 +5,9 @@
     "email": "test1@t.t",
     "password": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
     "image": "megatron.webp",
+    "isCalling": false,
     "friends": [
-      {
-        "userId": "6774a2811bc52f370bbd91c5",
-        "isCalling": false
-      }
+      "6774a2811bc52f370bbd91c5"
     ]
   },
   {
@@ -18,23 +16,19 @@
     "email": "test2@t.t",
     "password": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
     "image": "optimusprime.jpg",
+    "isCalling": false,
     "friends": [
-      {
-        "userId": "6774a2811bc52f370bbd91c4",
-        "isCalling": false
-      },
-      {
-        "userId": "6774a2811bc52f370bbd91c6",
-        "isCalling": false
-      }
+      "6774a2811bc52f370bbd91c4",
+      "6774a2811bc52f370bbd91c6"
     ]
   },
   {
     "_id": "6774a2811bc52f370bbd91c6",
     "name": "T-Rex",
     "email": "test3@t.t",
-    "password": "test",
+    "password": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
     "image": "t-rex.webp",
+    "isCalling": false,
     "friends": []
   }
 ]

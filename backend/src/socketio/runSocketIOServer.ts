@@ -5,6 +5,8 @@ import newOfferListener from "./eventHandlers/newOfferListener";
 import offererIceToServerListener from "./eventHandlers/offererIceToServerListener";
 import newAnswerListener from "./eventHandlers/newAnswerListener";
 import answererIceToServerListener from "./eventHandlers/answererIceToServerListener";
+import { error } from "console";
+import mongoose from "mongoose";
 
 type Offer = {
   offererUuid: string;
@@ -25,19 +27,11 @@ type User = {
 export const connectedUsers: User[] = [];
 
 export type Friend = {
-  _id?: string;
-  uuid: string;
-  userName: string;
+  _id?: typeof mongoose.Schema.ObjectId;
+  uuid: typeof mongoose.Schema.ObjectId;
+  name: string;
   email: string;
-  password: string;
   image: string;
-  isCalling: boolean;
-};
-
-export type UserFriend = {
-  _id?: string;
-  userId: string;
-  isCalling: boolean;
 };
 
 export function findOffer(offererUuid: string, answererUuid: string) {
@@ -48,30 +42,16 @@ export function findOffer(offererUuid: string, answererUuid: string) {
 }
 
 export async function findFriends(uuid: string) {
-  const user = await User.findOne({ _id: uuid }, "friends");
+  const user = await User.findById(uuid, "friends").populate({
+    path: "friends",
+    select: "-__v -friends -password",
+  });
+
   if (!user) {
     console.error("User not found", uuid);
     return [];
   } else {
-    const friendsIds = user.friends.map((f) => f.userId.toString());
-    const friends = await User.find(
-      { _id: { $in: friendsIds } },
-      "_id name email password image"
-    );
-    const newFriends = friends.map((f) => {
-      const friend = user.friends.find(
-        (friend) => friend.userId.toString() === f._id.toString()
-      );
-      return {
-        uuid: f._id.toString(),
-        name: f.name,
-        email: f.email,
-        password: f.password,
-        image: f.image,
-        isCalling: friend?.isCalling || false,
-      };
-    });
-    return newFriends;
+    return user.friends;
   }
 }
 

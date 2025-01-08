@@ -1,7 +1,6 @@
 import {
   findOffer,
   offers,
-  UserFriend,
   connectedUsers,
   findFriends,
 } from "../runSocketIOServer";
@@ -18,6 +17,10 @@ const newOfferListener = (socket: Socket) => {
     offererUuid: string;
     answererUuid: string;
   }) => {
+    if (!offererUuid || !answererUuid) {
+      console.error("offererUuid or answererUuid is undefined");
+      return;
+    }
     console.log("received newOffer", offererUuid, answererUuid);
     const existingOffer = findOffer(offererUuid, answererUuid);
     if (existingOffer) {
@@ -35,26 +38,11 @@ const newOfferListener = (socket: Socket) => {
     }
 
     //update isCalling
-    const answererFriends = await User.findOne(
-      { _id: answererUuid },
-      "friends",
-      {
-        _id: 0,
-      }
-    ).exec();
-
-    if (!answererFriends) throw new Error(`User ${answererUuid} doesn't exist`);
-
-    const newFriends = answererFriends.friends
-      .toObject()
-      .map((f: UserFriend) => {
-        delete f._id;
-        if (f.userId.toString() === offererUuid) {
-          return { ...f, isCalling: true };
-        }
-        return f;
-      });
-    await User.findOneAndUpdate({ _id: answererUuid }, { friends: newFriends });
+    await User.findByIdAndUpdate(offererUuid, { isCalling: true });
+    const answererFriends = await User.findById(answererUuid, "friends", {
+      _id: 0,
+    }).populate({ path: "friends", select: "-__v -friends -password" });
+    if (!answererFriends) console.error(`User ${answererUuid} doesn't exist`);
 
     //find expected answerer
     const answerer = connectedUsers.find((u) => u.uuid === answererUuid);
@@ -62,9 +50,7 @@ const newOfferListener = (socket: Socket) => {
       socket.to(answerer.socketId).emit("newOfferWaiting", offer);
       console.log("send newOfferWaiting", answererUuid);
 
-      socket
-        .to(answerer.socketId)
-        .emit("updateFriendList", await findFriends(answererUuid));
+      socket.to(answerer.socketId).emit("updateFriendList", answererFriends);
       console.log("send updateFriendList", answererUuid);
     }
   };

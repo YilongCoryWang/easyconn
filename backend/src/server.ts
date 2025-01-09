@@ -2,14 +2,15 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import mongoose from "mongoose";
-import router from "./routes/serverRouter";
+import userRouter from "./routes/userRouter";
 import runSocketIOServer from "./socketio/runSocketIOServer";
 
 const app = express();
 app.use(cors());
 app.use("/assets", express.static("public"));
-app.use(express.json());
-app.use(router);
+app.use(express.json({ limit: "10kb" }));
+app.use("/api/vi/users", userRouter);
+
 const httpServer = http.createServer(app);
 
 if (!process.env.DB_URL || !process.env.DB_PASSWORD || !process.env.DB_SERVER) {

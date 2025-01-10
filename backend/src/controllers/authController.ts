@@ -1,6 +1,7 @@
 import User from "../models/user";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import util from "util";
 
 const signToken = (id: string) => {
   //@ts-ignore
@@ -55,4 +56,44 @@ export const signup = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  const users = await User.find();
+  res.status(200).json({ status: "success", data: { users } });
+};
+
+export const auth = async (req: Request, res: Response, next: NextFunction) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    throw new Error("You are not logged in. Please log in to get access.");
+  }
+
+  const decoded = (await util.promisify(jwt.verify)(
+    token,
+    //@ts-ignore
+    process.env.JWT_SECRET
+  )) as unknown;
+
+  if (decoded && typeof decoded === "object" && "id" in decoded) {
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      throw new Error("User not found.");
+    }
+    //if password changed after token was issued, then need to log in again
+    if ("iat" in decoded && user.hasChangedPassword(decoded.iat as string)) {
+      throw new Error("Please log in again.");
+    }
+    req.user = user;
+  } else {
+    throw new Error("Token invalid.");
+  }
+
+  next();
 };

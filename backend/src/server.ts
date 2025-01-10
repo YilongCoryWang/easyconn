@@ -4,6 +4,15 @@ import cors from "cors";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRouter";
 import runSocketIOServer from "./socketio/runSocketIOServer";
+import { IUser } from "./models/user";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser;
+    }
+  }
+}
 
 const app = express();
 app.use(cors());

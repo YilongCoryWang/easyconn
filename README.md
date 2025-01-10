@@ -6,9 +6,23 @@ This project realizes the function of voice and video communication for users
 
 ## Tech used
 
-Frontend: React + Typescript, webRTC
-Backend: Express + Typescript, SocketIO
-DB: mongoose + mongodb docker
+### 1. Frontend:
+
+React + Typescript
+
+webRTC
+
+### 2. Backend
+
+Express + Typescript
+
+SocketIO
+
+### 3. DB
+
+mongoose
+
+mongodb docker
 
 ## How to run locally
 

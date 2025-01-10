@@ -3,13 +3,14 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 
 // https://mongoosejs.com/docs/typescript/statics-and-methods.html
-interface IUser {
+export interface IUser {
   name: string;
   email: string;
   password: string;
   passwordConfirm: string;
   image: string;
   isCalling: boolean;
+  passwordChangedAt: Date;
   friends: (typeof Schema.ObjectId)[];
 }
 
@@ -19,6 +20,7 @@ interface IUserMethods {
     candidatePassword: string,
     userPassword: string
   ): Promise<boolean>;
+  hasChangedPassword(issueTokenAt: string): Boolean;
 }
 type UserModel = Model<IUser, {}, IUserMethods>;
 
@@ -64,6 +66,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       required: true,
       default: false,
     },
+    passwordChangedAt: Date,
     friends: [
       {
         type: Schema.ObjectId,
@@ -100,6 +103,15 @@ userSchema.methods.isCorrectPassword = async function (
   userPassword: string
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.hasChangedPassword = function (issueTokenAt: string) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = this.passwordChangedAt.getTime() / 1000;
+    return parseInt(issueTokenAt) < changedTimeStamp;
+  }
+
+  return false;
 };
 
 const User = mongoose.model("User", userSchema);

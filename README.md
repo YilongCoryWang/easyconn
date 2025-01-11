@@ -30,7 +30,13 @@ mongodb docker
 
 ```
 cd frontend
+
 npm install
+
+comment out backend/src/models/user.ts
+1) userSchema.passwordConfirm
+2) userSchema.pre("save", async function (next) {})
+
 npm run dev
 ```
 

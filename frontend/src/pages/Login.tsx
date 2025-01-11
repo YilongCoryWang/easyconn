@@ -20,12 +20,16 @@ function Login() {
       }
       const email = emailRef.current.value;
       const password = passwordRef.current.value;
-      const res = await apiBase.post("/login", {
+      const res = await apiBase.post("/api/vi/users/login", {
         email,
         password,
       });
-      const { uuid, image, userName } = res.data;
-      navigate("/home", { state: { uuid, image, userName } });
+      const { status, data, token } = res.data;
+      if (status === "success") {
+        const { uuid, image, userName } = data.user;
+        localStorage.setItem("token", token);
+        navigate("/home", { state: { uuid, image, userName } });
+      }
     } catch (error) {
       console.error(error);
     }

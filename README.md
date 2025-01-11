@@ -38,6 +38,10 @@ comment out backend/src/models/user.ts
 2) userSchema.pre("save", async function (next) {})
 
 npm run dev
+
+uncomment
+1) userSchema.passwordConfirm
+2) userSchema.pre("save", async function (next) {})
 ```
 
 ### Backend

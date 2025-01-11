@@ -52,7 +52,16 @@ export const signup = async (req: Request, res: Response) => {
 
     const token = signToken(newUser._id.toHexString());
 
-    res.status(201).json({ status: "success", token, data: { user: newUser } });
+    const data = {
+      user: {
+        email: newUser.email,
+        image: newUser.image,
+        userName: newUser.name,
+        uuid: newUser._id.toHexString(),
+      },
+    };
+
+    res.status(201).json({ status: "success", token, data });
   } catch (error) {
     console.error(error);
   }

@@ -8,7 +8,6 @@ function Login() {
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const handleLogin = useCallback(async () => {
-    console.log("handleLogin");
     try {
       if (
         !emailRef ||
@@ -74,8 +73,11 @@ function Login() {
               ref={passwordRef}
             />
           </div>
-          <div className="flex flex-col items-center justify-between text-center font-semibold mt-3">
-            <a href="#" className="w-full  text-cyan-700 mt-3 mb-3">
+          <div className="flex items-center justify-between text-center font-semibold mt-3">
+            <a href="/signup" className="w-1/2  text-cyan-700 mt-3 mb-3">
+              Sign Up
+            </a>
+            <a href="#" className="w-1/2 text-cyan-700 mt-3 mb-3">
               Forgot password?
             </a>
           </div>
@@ -85,23 +87,6 @@ function Login() {
           >
             Login
           </button>
-        </div>
-        {/* <!-- close button --> */}
-        <div className="absolute top-2 right-3 w-8 h-8 rounded-full group bg-gray-200 bg-opacity-70 flex justify-center items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 text-black group-hover:text-gray-600"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
         </div>
       </div>
     </div>

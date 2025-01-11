@@ -33,14 +33,14 @@ function Home() {
       <div className="w-96 h-full bg-cyan-600 text-gray-200 rounded-md shadow-2xl p-3 m-6 space-y-3">
         {/* welcome banner container */}
         <div className="flex items-center space-x-3">
-          <img
-            className="w-16 h-16"
-            src={`${resourceURL}/${image}`}
-            alt={`${userName}-image`}
-          />
-          <h1 className="text-2xl">
-            Welcome back{userName && `, ${userName}`}!
-          </h1>
+          {image && (
+            <img
+              className="w-16 h-16"
+              src={`${resourceURL}/${image}`}
+              alt={`${userName}-image`}
+            />
+          )}
+          <h1 className="text-2xl">Welcome{userName && ` ${userName}`}!</h1>
         </div>
         <h3 className="text-lg">Now you can video chat with friends:</h3>
         {/* <div className="flex flex-row justify-center items-center"> */}

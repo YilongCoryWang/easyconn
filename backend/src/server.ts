@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import userRouter from "./routes/userRouter";
 import runSocketIOServer from "./socketio/runSocketIOServer";
 import { IUser } from "./models/user";
+import AppError from "./utils/appError";
+import globelErrorHandler from "./controllers/errorController";
 
 declare global {
   namespace Express {
@@ -19,6 +21,16 @@ app.use(cors());
 app.use("/assets", express.static("public"));
 app.use(express.json({ limit: "10kb" }));
 app.use("/api/vi/users", userRouter);
+app.all("*", (req, res, next) => {
+  next(
+    new AppError(
+      `The requested resource does not exist: ${req.originalUrl}`,
+      404
+    )
+  );
+});
+
+app.use(globelErrorHandler);
 
 const httpServer = http.createServer(app);
 

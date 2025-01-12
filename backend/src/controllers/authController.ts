@@ -2,6 +2,8 @@ import User from "../models/user";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import util from "util";
+import AppError from "../utils/appError";
+import catchAsync from "../utils/catchAsync";
 
 const signToken = (id: string) => {
   //@ts-ignore
@@ -10,35 +12,34 @@ const signToken = (id: string) => {
   });
 };
 
-export const login = async (req: Request, res: Response) => {
-  if (!req.body.email || !req.body.password) {
-    res.status(400).send({ message: "Email or password is empty" });
-    return;
+export const login = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body.email || !req.body.password) {
+      return next(new AppError("Email or password is empty", 400));
+    }
+
+    const email = req.body.email;
+    const user = await User.findOne({ email }, "+password -__v -friends");
+    if (
+      !user ||
+      !(await user.isCorrectPassword(req.body.password, user.password))
+    ) {
+      return next(new AppError("Email or password is not correct", 401));
+    }
+
+    const { _id, image, name } = user;
+    const uuid = _id.toHexString();
+    const token = signToken(uuid);
+    res.status(200).json({
+      status: "success",
+      token,
+      data: { user: { uuid, image, userName: name } },
+    });
   }
+);
 
-  const email = req.body.email;
-  const user = await User.findOne({ email }, "+password -__v -friends");
-  if (
-    !user ||
-    !(await user.isCorrectPassword(req.body.password, user.password))
-  ) {
-    res.status(401).send({ message: "Email or password not correct" });
-    return;
-  }
-
-  const { _id, image, name } = user;
-  const uuid = _id.toHexString();
-  const token = signToken(uuid);
-  // res.send({ uuid: _id, image, userName: name });
-  res.status(200).json({
-    status: "success",
-    token,
-    data: { user: { uuid, image, userName: name } },
-  });
-};
-
-export const signup = async (req: Request, res: Response) => {
-  try {
+export const signup = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
@@ -47,7 +48,7 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
-      throw new Error("JWT_SECRET or JWT_EXPIRES_IN is missing");
+      return next(new AppError("JWT_SECRET or JWT_EXPIRES_IN is missing", 500));
     }
 
     const token = signToken(newUser._id.toHexString());
@@ -62,47 +63,54 @@ export const signup = async (req: Request, res: Response) => {
     };
 
     res.status(201).json({ status: "success", token, data });
-  } catch (error) {
-    console.error(error);
   }
-};
+);
 
-export const getAllUsers = async (req: Request, res: Response) => {
-  const users = await User.find();
-  res.status(200).json({ status: "success", data: { users } });
-};
-
-export const auth = async (req: Request, res: Response, next: NextFunction) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-  if (!token) {
-    throw new Error("You are not logged in. Please log in to get access.");
-  }
-
-  const decoded = (await util.promisify(jwt.verify)(
-    token,
-    //@ts-ignore
-    process.env.JWT_SECRET
-  )) as unknown;
-
-  if (decoded && typeof decoded === "object" && "id" in decoded) {
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      throw new Error("User not found.");
+export const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const users = await User.find();
+    if (users.length === 0) {
+      return next(new AppError("No user found.", 404));
     }
-    //if password changed after token was issued, then need to log in again
-    if ("iat" in decoded && user.hasChangedPassword(decoded.iat as string)) {
-      throw new Error("Please log in again.");
-    }
-    req.user = user;
-  } else {
-    throw new Error("Token invalid.");
+    res.status(200).json({ status: "success", data: { users } });
   }
+);
 
-  next();
-};
+export const auth = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+    if (!token) {
+      return next(
+        new AppError("You are not logged in. Please log in to get access.", 401)
+      );
+    }
+
+    const decoded = (await util.promisify(jwt.verify)(
+      token,
+      //@ts-ignore
+      process.env.JWT_SECRET
+    )) as unknown;
+
+    if (decoded && typeof decoded === "object" && "id" in decoded) {
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return next(new AppError("User not found.", 404));
+      }
+      //if password changed after token was issued which means user found something wrong with the account, then need to log in again
+      if ("iat" in decoded && user.hasChangedPassword(decoded.iat as string)) {
+        return next(new AppError("Please log in again.", 404));
+      }
+      req.user = user;
+    } else {
+      return next(new AppError("Token invalid.", 404));
+    }
+
+    next();
+  }
+);

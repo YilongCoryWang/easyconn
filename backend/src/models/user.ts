@@ -87,8 +87,8 @@ userSchema.pre("save", async function (next) {
 
   //12 is CPU cost which makes the hashed password stronger
   this.password = await bcrypt.hash(this.password, 12);
-  console.log(this.password);
-  //do not persist passwordConfirm to db
+
+  //DO NOT persist passwordConfirm to db
   //@ts-ignore
   this.passwordConfirm = undefined;
   next();

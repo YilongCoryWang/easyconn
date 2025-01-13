@@ -16,6 +16,12 @@ declare global {
   }
 }
 
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+  //let server finish all pending requests, then shutdown process abruptly
+  process.exit(1);
+});
+
 const app = express();
 app.use(cors());
 app.use("/assets", express.static("public"));
@@ -50,6 +56,14 @@ mongoose
 //socketio server
 runSocketIOServer(httpServer);
 
-httpServer.listen(9000, () => {
+const server = httpServer.listen(9000, () => {
   console.log("Server is running on 9000");
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("UNHANDLED REJECTION:", reason);
+  //let server finish all pending requests, then shutdown process abruptly
+  server.close(() => {
+    process.exit(1);
+  });
 });

@@ -66,16 +66,6 @@ export const signup = catchAsync(
   }
 );
 
-export const getAllUsers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const users = await User.find();
-    if (users.length === 0) {
-      return next(new AppError("No user found.", 404));
-    }
-    res.status(200).json({ status: "success", data: { users } });
-  }
-);
-
 export const auth = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let token;

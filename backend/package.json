@@ -7,7 +7,7 @@
     "dev": "nodemon -r dotenv/config src/server.ts dotenv_config_path=config.env",
     "seed": "ts-node -r dotenv/config mongodb/seed.ts --import dotenv_config_path=config.env",
     "seed:remove": "ts-node -r dotenv/config mongodb/seed.ts --delete dotenv_config_path=config.env",
-    "run:build": "tsc && nodemon ./build/server.js",
+    "prod": "NODE_ENV=production nodemon -r dotenv/config src/server.ts dotenv_config_path=config.env",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

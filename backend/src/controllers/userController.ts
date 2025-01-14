@@ -26,3 +26,14 @@ export const getAllUsers = catchAsync(
     res.status(200).json({ status: "success", data: { users } });
   }
 );
+
+export const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    if (!id) {
+      return next(new AppError("User id cannot be empty.", 400));
+    }
+    const users = await User.deleteOne({ _id: id });
+    res.status(200).json({ status: "success", data: { users } });
+  }
+);

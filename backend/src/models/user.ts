@@ -8,6 +8,7 @@ export interface IUser {
   email: string;
   password: string;
   passwordConfirm: string;
+  role: string;
   image: string;
   isCalling: boolean;
   passwordChangedAt: Date;
@@ -56,6 +57,11 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         },
         message: "Password and confirm are not the same",
       },
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
     image: {
       type: String,

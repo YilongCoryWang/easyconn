@@ -45,6 +45,7 @@ export const signup = catchAsync(
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
+      role: req.body.role,
     });
 
     if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
@@ -104,3 +105,15 @@ export const auth = catchAsync(
     next();
   }
 );
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user) {
+    console.log(req.user.role);
+  }
+  if (req.user && req.user.role === "admin") {
+    return next();
+  }
+  return next(
+    new AppError("You are not authorized to perform this operation.", 401)
+  );
+};

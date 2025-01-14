@@ -4,6 +4,7 @@
     "name": "Megatron",
     "email": "test1@t.tt",
     "password": "$2a$12$oH.Rn7bfXuaOb1mRUfqo7OpYtEr/hTo8W5nF.dBYYZS/2SY8zPBee",
+    "role": "user",
     "image": "megatron.webp",
     "isCalling": false,
     "friends": [
@@ -15,6 +16,7 @@
     "name": "Optimus Prime",
     "email": "test2@t.tt",
     "password": "$2a$12$oH.Rn7bfXuaOb1mRUfqo7OpYtEr/hTo8W5nF.dBYYZS/2SY8zPBee",
+    "role": "user",
     "image": "optimusprime.jpg",
     "isCalling": false,
     "friends": [
@@ -26,6 +28,19 @@
     "_id": "6774a2811bc52f370bbd91c6",
     "name": "T-Rex",
     "email": "test3@t.tt",
+    "role": "user",
+    "password": "$2a$12$oH.Rn7bfXuaOb1mRUfqo7OpYtEr/hTo8W5nF.dBYYZS/2SY8zPBee",
+    "image": "t-rex.webp",
+    "isCalling": false,
+    "friends": [
+      "6774a2811bc52f370bbd91c5"
+    ]
+  }
+  {
+    "_id": "6774a2811bc52f370bbd91c7",
+    "name": "admin",
+    "email": "admin@t.tt",
+    "role": "admin",
     "password": "$2a$12$oH.Rn7bfXuaOb1mRUfqo7OpYtEr/hTo8W5nF.dBYYZS/2SY8zPBee",
     "image": "t-rex.webp",
     "isCalling": false,

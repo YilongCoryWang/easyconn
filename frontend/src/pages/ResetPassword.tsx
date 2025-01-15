@@ -7,7 +7,7 @@ function ResetPassword() {
   const { token } = useParams();
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const passwordConfirmRef = useRef<HTMLInputElement | null>(null);
-  const [resetSuccess, setResetSuccess] = useState<boolean>(true);
+  const [resetSuccess, setResetSuccess] = useState<boolean>(false);
   const handleResetPassword = useCallback(async () => {
     try {
       if (

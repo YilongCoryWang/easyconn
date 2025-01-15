@@ -6,9 +6,8 @@ import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
 import sendEmail from "../utils/sendEmail";
 
-const signToken = (payload: unknown, expiresIn: string) => {
-  //@ts-ignore
-  return jwt.sign(payload, process.env.JWT_SECRET, {
+const signToken = (payload: object, secret: string, expiresIn: string) => {
+  return jwt.sign(payload, secret, {
     expiresIn,
   });
 };
@@ -34,8 +33,12 @@ export const login = catchAsync(
     if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
       return next(new Error("JWT_SECRET or JWT_EXPIRES_IN is missing"));
     }
+    const token = signToken(
+      { id: uuid },
+      process.env.JWT_SECRET,
+      process.env.JWT_EXPIRES_IN
+    );
 
-    const token = signToken({ id: uuid }, process.env.JWT_EXPIRES_IN);
     res.status(200).json({
       status: "success",
       token,
@@ -60,6 +63,7 @@ export const signup = catchAsync(
 
     const token = signToken(
       { id: newUser._id.toHexString() },
+      process.env.JWT_SECRET,
       process.env.JWT_EXPIRES_IN
     );
 
@@ -130,7 +134,7 @@ export const forgotPassword = catchAsync(
     if (!email) {
       return next(new AppError("User email cannot be empty.", 400));
     }
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email }, "password email");
     if (!user) {
       return next(new AppError("Your email cannot be found.", 400));
     }
@@ -138,8 +142,11 @@ export const forgotPassword = catchAsync(
     if (!process.env.PASSWORD_RESET_EXPIRES_IN) {
       return next(new Error("PASSWORD_RESET_EXPIRES_IN doesn't exist."));
     }
+
+    //make token only valid one time: https://www.jbspeakr.cc/howto-single-use-jwt/
     const resetToken = signToken(
       { id: user._id },
+      user.password,
       process.env.PASSWORD_RESET_EXPIRES_IN
     );
     const resetLink = `${process.env.FRONTEND_SERVER}/reset-password/${resetToken}`;
@@ -162,12 +169,34 @@ export const forgotPassword = catchAsync(
   }
 );
 
+function getTokenPayload(token: string) {
+  return JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+}
+
 export const resetPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const token = req.params.token;
     if (!token) {
       return next(new AppError("Token cannot be empty.", 400));
     }
+
+    const { id } = getTokenPayload(token);
+    if (!id) {
+      return next(new AppError("Token is invalid.", 400));
+    }
+
+    const user = await User.findById(id, "password");
+    if (!user) {
+      return next(new AppError("User not found.", 404));
+    }
+
+    //make token only valid one time: https://www.jbspeakr.cc/howto-single-use-jwt/
+    await util.promisify(jwt.verify)(
+      token,
+      //@ts-ignore
+      user.password
+    );
+
     const password = req.body.password;
     const passwordConfirm = req.body.passwordConfirm;
     if (!password || !passwordConfirm) {
@@ -176,24 +205,9 @@ export const resetPassword = catchAsync(
       );
     }
 
-    const decoded = (await util.promisify(jwt.verify)(
-      token,
-      //@ts-ignore
-      process.env.JWT_SECRET
-    )) as unknown;
-
-    if (decoded && typeof decoded === "object" && "id" in decoded) {
-      const user = await User.findById(decoded.id);
-      if (!user) {
-        return next(new AppError("User not found.", 404));
-      }
-
-      user.password = password;
-      user.passwordConfirm = passwordConfirm;
-      await user.save();
-    } else {
-      return next(new AppError("Token invalid.", 404));
-    }
+    user.password = password;
+    user.passwordConfirm = passwordConfirm;
+    await user.save();
 
     res.status(200).json({ status: "success", message: "Password updated" });
   }

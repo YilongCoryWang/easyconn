@@ -4,11 +4,12 @@ import jwt from "jsonwebtoken";
 import util from "util";
 import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
+import sendEmail from "../utils/sendEmail";
 
-const signToken = (id: string) => {
+const signToken = (payload: unknown, expiresIn: string) => {
   //@ts-ignore
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn,
   });
 };
 
@@ -29,7 +30,12 @@ export const login = catchAsync(
 
     const { _id, image, name } = user;
     const uuid = _id.toHexString();
-    const token = signToken(uuid);
+
+    if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
+      return next(new Error("JWT_SECRET or JWT_EXPIRES_IN is missing"));
+    }
+
+    const token = signToken({ id: uuid }, process.env.JWT_EXPIRES_IN);
     res.status(200).json({
       status: "success",
       token,
@@ -49,10 +55,13 @@ export const signup = catchAsync(
     });
 
     if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
-      return next(new AppError("JWT_SECRET or JWT_EXPIRES_IN is missing", 500));
+      return next(new Error("JWT_SECRET or JWT_EXPIRES_IN is missing"));
     }
 
-    const token = signToken(newUser._id.toHexString());
+    const token = signToken(
+      { id: newUser._id.toHexString() },
+      process.env.JWT_EXPIRES_IN
+    );
 
     const data = {
       user: {
@@ -107,9 +116,6 @@ export const auth = catchAsync(
 );
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (req.user) {
-    console.log(req.user.role);
-  }
   if (req.user && req.user.role === "admin") {
     return next();
   }
@@ -117,3 +123,78 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     new AppError("You are not authorized to perform this operation.", 401)
   );
 };
+
+export const forgotPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const email = req.body.email;
+    if (!email) {
+      return next(new AppError("User email cannot be empty.", 400));
+    }
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return next(new AppError("Your email cannot be found.", 400));
+    }
+
+    if (!process.env.PASSWORD_RESET_EXPIRES_IN) {
+      return next(new Error("PASSWORD_RESET_EXPIRES_IN doesn't exist."));
+    }
+    const resetToken = signToken(
+      { id: user._id },
+      process.env.PASSWORD_RESET_EXPIRES_IN
+    );
+    const resetLink = `${process.env.FRONTEND_SERVER}/reset-password/${resetToken}`;
+
+    try {
+      const options = {
+        from: "admin <admin@t.tt>",
+        to: user.email,
+        subject: "Reset Password",
+        content: resetLink,
+      };
+      await sendEmail(options);
+    } catch (error) {
+      return next(new AppError(`Cannot send email: ${error}`, 500));
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Password reset link send to user's email address",
+    });
+  }
+);
+
+export const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.params.token;
+    if (!token) {
+      return next(new AppError("Token cannot be empty.", 400));
+    }
+    const password = req.body.password;
+    const passwordConfirm = req.body.passwordConfirm;
+    if (!password || !passwordConfirm) {
+      return next(
+        new AppError("User password or password confirm cannot be empty.", 400)
+      );
+    }
+
+    const decoded = (await util.promisify(jwt.verify)(
+      token,
+      //@ts-ignore
+      process.env.JWT_SECRET
+    )) as unknown;
+
+    if (decoded && typeof decoded === "object" && "id" in decoded) {
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return next(new AppError("User not found.", 404));
+      }
+
+      user.password = password;
+      user.passwordConfirm = passwordConfirm;
+      await user.save();
+    } else {
+      return next(new AppError("Token invalid.", 404));
+    }
+
+    res.status(200).json({ status: "success", message: "Password updated" });
+  }
+);

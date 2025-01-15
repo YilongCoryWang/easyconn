@@ -1,9 +1,11 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "./Login";
 import Signup from "./Signup";
+import Home from "./Home";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 import OffererChat from "../mediaComponents/OffererChat";
 import AnswererChat from "../mediaComponents/AnswererChat";
-import Home from "./Home";
 
 const router = createBrowserRouter([
   {
@@ -11,6 +13,8 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   { path: "/signup", element: <Signup /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password/:token", element: <ResetPassword /> },
   { path: "/home", element: <Home /> },
   { path: "/offererchat", element: <OffererChat /> },
   { path: "/answererchat", element: <AnswererChat /> },

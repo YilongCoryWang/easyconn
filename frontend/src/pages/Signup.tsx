@@ -63,7 +63,7 @@ function Signup() {
     <div className="flex justify-center items-center bg-cyan-400 min-h-screen">
       {/* <!-- main card --> */}
       <div className="relative flex m-6">
-        {/* <!-- left card --> */}
+        {/* <!-- content --> */}
         <div className="w-96 p-4 md:p-8 bg-gray-50 shadow-lg rounded-lg space-y-9">
           {/* <!-- Signup container --> */}
           <div className="space-y-3">

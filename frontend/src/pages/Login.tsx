@@ -52,7 +52,7 @@ function Login() {
     <div className="flex justify-center items-center bg-cyan-400 min-h-screen">
       {/* <!-- main card --> */}
       <div className="relative flex m-6">
-        {/* <!-- left card --> */}
+        {/* <!-- content --> */}
         <div className="w-96 p-4 md:p-8 bg-gray-50 shadow-lg rounded-lg">
           {/* <!-- login container --> */}
           <div className="space-y-3">
@@ -77,7 +77,10 @@ function Login() {
             <a href="/signup" className="w-1/2  text-cyan-700 mt-3 mb-3">
               Sign Up
             </a>
-            <a href="#" className="w-1/2 text-cyan-700 mt-3 mb-3">
+            <a
+              href="/forgot-password"
+              className="w-1/2 text-cyan-700 mt-3 mb-3"
+            >
               Forgot password?
             </a>
           </div>

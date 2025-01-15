@@ -33,7 +33,9 @@ export const deleteUser = catchAsync(
     if (!id) {
       return next(new AppError("User id cannot be empty.", 400));
     }
-    const users = await User.deleteOne({ _id: id });
-    res.status(200).json({ status: "success", data: { users } });
+    await User.deleteOne({ _id: id });
+    res
+      .status(200)
+      .json({ status: "success", message: `User ${id} has been deleted` });
   }
 );

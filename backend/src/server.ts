@@ -8,6 +8,7 @@ import { IUser } from "./models/user";
 import AppError from "./utils/appError";
 import globelErrorHandler from "./controllers/errorController";
 import cookieParser from "cookie-parser";
+import { rateLimit } from "express-rate-limit";
 
 declare global {
   namespace Express {
@@ -28,6 +29,14 @@ app.use(cors());
 app.use(cookieParser());
 app.use("/assets", express.static("public"));
 app.use(express.json({ limit: "10kb" }));
+const limiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 1 hour).
+  standardHeaders: "draft-8", // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  message: "Too many reqeusts, please try again later",
+});
+app.use("/api", limiter); // Apply the rate limiting middleware to /api requests.
 app.use("/api/vi/users", userRouter);
 app.all("*", (req, res, next) => {
   next(

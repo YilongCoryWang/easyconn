@@ -9,6 +9,7 @@ import AppError from "./utils/appError";
 import globelErrorHandler from "./controllers/errorController";
 import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
 
 declare global {
   namespace Express {
@@ -29,6 +30,10 @@ app.use(cors());
 app.use(cookieParser());
 app.use("/assets", express.static("public"));
 app.use(express.json({ limit: "10kb" }));
+
+// Set security HTTP headers
+app.use(helmet());
+
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   limit: 100, // Limit each IP to 100 requests per `window` (here, per 1 hour).

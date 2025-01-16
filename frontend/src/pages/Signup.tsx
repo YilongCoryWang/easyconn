@@ -108,7 +108,7 @@ function Signup() {
                 className="w-full border-2 rounded-md bg-cyan-700 p-5 text-gray-100 shadow-lg hover:bg-cyan-600 hover:-translate-y-1 active:translate-y-0 transition text-lg font-semibold"
                 onClick={() => navigate("/")}
               >
-                Log In
+                Back to Login
               </button>
             </div>
           )}

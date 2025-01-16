@@ -12,6 +12,13 @@ const signToken = (payload: object, secret: string, expiresIn: string) => {
   });
 };
 
+function setCookie(res: Response, expiresIn: string, token: string) {
+  return res.cookie("token", token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + parseInt(expiresIn) * 24 * 60 * 60 * 1000),
+  });
+}
+
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.email || !req.body.password) {
@@ -30,15 +37,23 @@ export const login = catchAsync(
     const { _id, image, name } = user;
     const uuid = _id.toHexString();
 
-    if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
-      return next(new Error("JWT_SECRET or JWT_EXPIRES_IN is missing"));
+    if (
+      !process.env.JWT_SECRET ||
+      !process.env.JWT_EXPIRES_IN ||
+      !process.env.JWT_COOKIE_EXPIRES_IN
+    ) {
+      return next(
+        new Error(
+          "JWT_SECRET, JWT_EXPIRES_IN or JWT_COOKIE_EXPIRES_IN is missing"
+        )
+      );
     }
     const token = signToken(
       { id: uuid },
       process.env.JWT_SECRET,
       process.env.JWT_EXPIRES_IN
     );
-
+    res = setCookie(res, process.env.JWT_COOKIE_EXPIRES_IN, token);
     res.status(200).json({
       status: "success",
       token,
@@ -61,12 +76,6 @@ export const signup = catchAsync(
       return next(new Error("JWT_SECRET or JWT_EXPIRES_IN is missing"));
     }
 
-    const token = signToken(
-      { id: newUser._id.toHexString() },
-      process.env.JWT_SECRET,
-      process.env.JWT_EXPIRES_IN
-    );
-
     const data = {
       user: {
         email: newUser.email,
@@ -76,7 +85,15 @@ export const signup = catchAsync(
       },
     };
 
-    res.status(201).json({ status: "success", token, data });
+    if (!process.env.JWT_COOKIE_EXPIRES_IN) {
+      return next(
+        new AppError(
+          "Environment variable JWT_COOKIE_EXPIRES_IN doesn't exist",
+          500
+        )
+      );
+    }
+    res.status(201).json({ status: "success", data });
   }
 );
 
@@ -208,6 +225,15 @@ export const resetPassword = catchAsync(
     user.password = password;
     user.passwordConfirm = passwordConfirm;
     await user.save();
+
+    if (!process.env.JWT_COOKIE_EXPIRES_IN) {
+      return next(
+        new AppError(
+          "Environment variable JWT_COOKIE_EXPIRES_IN doesn't exist",
+          500
+        )
+      );
+    }
 
     res.status(200).json({ status: "success", message: "Password updated" });
   }

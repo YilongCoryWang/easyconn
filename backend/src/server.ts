@@ -7,6 +7,7 @@ import runSocketIOServer from "./socketio/runSocketIOServer";
 import { IUser } from "./models/user";
 import AppError from "./utils/appError";
 import globelErrorHandler from "./controllers/errorController";
+import cookieParser from "cookie-parser";
 
 declare global {
   namespace Express {
@@ -24,6 +25,7 @@ process.on("uncaughtException", (err) => {
 
 const app = express();
 app.use(cors());
+app.use(cookieParser());
 app.use("/assets", express.static("public"));
 app.use(express.json({ limit: "10kb" }));
 app.use("/api/vi/users", userRouter);

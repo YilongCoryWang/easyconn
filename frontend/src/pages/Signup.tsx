@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiBase from "../utils/apiBase";
 
@@ -8,6 +8,7 @@ function Signup() {
   const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const passwordConfirmRef = useRef<HTMLInputElement | null>(null);
+  const [isSignUpSuccess, setIsSignUpSuccess] = useState<boolean>(false);
 
   const handleSignup = useCallback(async () => {
     try {
@@ -34,16 +35,13 @@ function Signup() {
         passwordConfirm,
       });
 
-      const { status, data, token } = res.data;
-      if (status === "success") {
-        const { uuid, image, userName } = data.user;
-        localStorage.setItem("token", token);
-        navigate("/home", { state: { uuid, image, userName } });
+      if (res.data.status === "success") {
+        setIsSignUpSuccess(true);
       }
     } catch (error) {
       console.error(error);
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -66,39 +64,54 @@ function Signup() {
         {/* <!-- content --> */}
         <div className="w-96 p-4 md:p-8 bg-gray-50 shadow-lg rounded-lg space-y-9">
           {/* <!-- Signup container --> */}
-          <div className="space-y-3">
-            <h1 className="text-3xl text-start font-mono">Sign Up</h1>
-            <input
-              className="w-full border-2 rounded focus:outline-none h-10 p-6"
-              type="text"
-              placeholder="Enter your user name"
-              ref={nameRef}
-            />
-            <input
-              className="w-full border-2 rounded focus:outline-none h-10 p-6"
-              type="text"
-              placeholder="Enter your email address"
-              ref={emailRef}
-            />
-            <input
-              className="w-full border-2 rounded focus:outline-none h-10 p-6"
-              type="password"
-              placeholder="Enter your password"
-              ref={passwordRef}
-            />
-            <input
-              className="w-full border-2 rounded focus:outline-none h-10 p-6"
-              type="password"
-              placeholder="Confirm your password"
-              ref={passwordConfirmRef}
-            />
-          </div>
-          <button
-            className="w-full border-2 rounded-md bg-cyan-700 p-5 text-gray-100 shadow-lg hover:bg-cyan-600 hover:-translate-y-1 active:translate-y-0 transition text-lg font-semibold"
-            onClick={handleSignup}
-          >
-            Signup
-          </button>
+          <h1 className="text-3xl text-start font-mono">Sign Up</h1>
+          {!isSignUpSuccess ? (
+            <div className="space-y-3">
+              <input
+                className="w-full border-2 rounded focus:outline-none h-10 p-6"
+                type="text"
+                placeholder="Enter your user name"
+                ref={nameRef}
+              />
+              <input
+                className="w-full border-2 rounded focus:outline-none h-10 p-6"
+                type="text"
+                placeholder="Enter your email address"
+                ref={emailRef}
+              />
+              <input
+                className="w-full border-2 rounded focus:outline-none h-10 p-6"
+                type="password"
+                placeholder="Enter your password"
+                ref={passwordRef}
+              />
+              <input
+                className="w-full border-2 rounded focus:outline-none h-10 p-6"
+                type="password"
+                placeholder="Confirm your password"
+                ref={passwordConfirmRef}
+              />
+              <button
+                className="w-full mt-24 border-2 rounded-md bg-cyan-700 p-5 text-gray-100 shadow-lg hover:bg-cyan-600 hover:-translate-y-1 active:translate-y-0 transition text-lg font-semibold"
+                onClick={handleSignup}
+              >
+                Sign up
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p>
+                Signup succesfully, please log in with your username and
+                password.
+              </p>
+              <button
+                className="w-full border-2 rounded-md bg-cyan-700 p-5 text-gray-100 shadow-lg hover:bg-cyan-600 hover:-translate-y-1 active:translate-y-0 transition text-lg font-semibold"
+                onClick={() => navigate("/")}
+              >
+                Log In
+              </button>
+            </div>
+          )}
         </div>
         {/* <!-- close button --> */}
         <div

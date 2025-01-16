@@ -23,10 +23,9 @@ function Login() {
         email,
         password,
       });
-      const { status, data, token } = res.data;
+      const { status, data } = res.data;
       if (status === "success") {
         const { uuid, image, userName } = data.user;
-        localStorage.setItem("token", token);
         navigate("/home", { state: { uuid, image, userName } });
       }
     } catch (error) {

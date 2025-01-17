@@ -4,20 +4,13 @@ import cors from "cors";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRouter";
 import runSocketIOServer from "./socketio/runSocketIOServer";
-import { IUser } from "./models/user";
 import AppError from "./utils/appError";
 import globelErrorHandler from "./controllers/errorController";
 import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
-    }
-  }
-}
+import mongoSanitize from "express-mongo-sanitize";
+import { xss } from "express-xss-sanitizer";
 
 process.on("uncaughtException", (err) => {
   console.error("UNCAUGHT EXCEPTION:", err);
@@ -30,6 +23,12 @@ app.use(cors());
 app.use(cookieParser());
 app.use("/assets", express.static("public"));
 app.use(express.json({ limit: "10kb" }));
+
+//sanitize NoSql query injection: curl -d '{"name": "Yilong", "email":{"$gt": ""}, "password":"test1234"}' -H "Content-Type: application/json" -X POST http://localhost:9000/api/vi/users/login
+app.use(mongoSanitize());
+
+//sanitize XSS attack
+app.use(xss());
 
 // Set security HTTP headers
 app.use(helmet());

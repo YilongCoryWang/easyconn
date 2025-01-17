@@ -30,18 +30,8 @@ mongodb docker
 
 ```
 cd frontend
-
 npm install
-
-comment out backend/src/models/user.ts
-1) userSchema.passwordConfirm
-2) userSchema.pre("save", async function (next) {})
-
 npm run dev
-
-uncomment
-1) userSchema.passwordConfirm
-2) userSchema.pre("save", async function (next) {})
 ```
 
 ### Backend
@@ -57,7 +47,7 @@ docker run --name mongodb -d -p 27017:27017 -v ${pwd}/mongodb:/data/db -e MONGO_
 ```
 cd backend
 npm install
-npm run seed
+npm run migratedb
 ```
 
 3. Start app server

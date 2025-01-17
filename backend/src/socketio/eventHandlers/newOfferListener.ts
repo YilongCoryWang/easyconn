@@ -39,10 +39,6 @@ const newOfferListener = (socket: Socket) => {
 
     //update isCalling
     await User.findByIdAndUpdate(offererUuid, { isCalling: true });
-    const answererFriends = await User.findById(answererUuid, "friends", {
-      _id: 0,
-    }).populate({ path: "friends", select: "-__v -friends -password" });
-    if (!answererFriends) console.error(`User ${answererUuid} doesn't exist`);
 
     //find expected answerer
     const answerer = connectedUsers.find((u) => u.uuid === answererUuid);
@@ -50,7 +46,14 @@ const newOfferListener = (socket: Socket) => {
       socket.to(answerer.socketId).emit("newOfferWaiting", offer);
       console.log("send newOfferWaiting", answererUuid);
 
-      socket.to(answerer.socketId).emit("updateFriendList", answererFriends);
+      const answererWithFriends = await User.findById(answererUuid, "friends", {
+        _id: 0,
+      }).populate({ path: "friends", select: "-__v -friends -password" });
+      if (answererWithFriends) {
+        socket
+          .to(answerer.socketId)
+          .emit("updateFriendList", answererWithFriends.friends);
+      }
       console.log("send updateFriendList", answererUuid);
     }
   };

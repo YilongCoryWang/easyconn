@@ -40,7 +40,7 @@ export function findCallingInfo(offererUuid: string, answererUuid: string) {
   );
 }
 
-export async function findFriends(uuid: string) {
+export async function updateFriendsList(socket: Socket, uuid: string) {
   const user = await User.findById(uuid, "friends").populate({
     path: "friends",
     select: "-__v -friends -password",
@@ -48,9 +48,8 @@ export async function findFriends(uuid: string) {
 
   if (!user) {
     console.error("User not found", uuid);
-    return [];
   } else {
-    return user.friends;
+    socket.emit("updateFriendList", user.friends);
   }
 }
 
@@ -62,7 +61,7 @@ const connectionHandler = async (socket: Socket) => {
     connectedUsers.push({ uuid, socketId: socket.id });
   }
 
-  socket.emit("updateFriendList", await findFriends(uuid));
+  updateFriendsList(socket, uuid);
 
   //loop through all known callingInfo and send out to the answerer who just joined
   //the calling that belong to him
@@ -78,11 +77,29 @@ const connectionHandler = async (socket: Socket) => {
   answererIceToServerListener(socket);
 
   socket.on("hangup", async ({ userId }) => {
-    console.log("hangup", userId);
-    callings = callings.filter(({ offererUuid, answererUuid }) => {
-      offererUuid !== userId && answererUuid !== userId;
-    });
-    const r = await User.findByIdAndUpdate(userId, { isCalling: false });
+    console.log("hangup, userId:", userId);
+    const callInfo = callings.find(
+      ({ offererUuid, answererUuid }) =>
+        offererUuid === userId || answererUuid === userId
+    );
+    if (callInfo) {
+      //remove the on-going call info
+      callings = callings.filter(
+        ({ offererUuid, answererUuid }) =>
+          offererUuid !== userId && answererUuid !== userId
+      );
+
+      await User.findByIdAndUpdate(callInfo.offererUuid, {
+        isCalling: false,
+      });
+      await User.findByIdAndUpdate(callInfo.answererUuid, {
+        isCalling: false,
+      });
+    } else {
+      await User.findByIdAndUpdate(userId, { isCalling: false });
+    }
+
+    updateFriendsList(socket, uuid);
   });
 
   socket.on("disconnect", (reason) => {

@@ -25,8 +25,7 @@ function Login() {
       });
       const { status, data } = res.data;
       if (status === "success") {
-        const { uuid, image, userName } = data.user;
-        navigate("/home", { state: { uuid, image, userName } });
+        navigate("/home", { state: { user: data.user } });
       }
     } catch (error) {
       console.error(error);

@@ -8,7 +8,7 @@ import {
   useUpdateCallStatus,
 } from "../contexts/callStatusContext";
 import getSocket from "../utils/getSocket";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import HangUpButton from "./HangUpButton";
 import answererListeners from "../utils/answererListeners";
 
@@ -29,6 +29,7 @@ function AnswererChat() {
   const updateCallStatus = useUpdateCallStatus();
   const offererUuid = searchParams.get("offerer");
   const answererUuid = searchParams.get("answerer");
+  const { state: user } = useLocation();
   console.log("render:::answer chat window offer", offer);
 
   if (!offererUuid) {
@@ -175,6 +176,7 @@ function AnswererChat() {
           smallFeedRef={smallFeedRef}
           largeFeedRef={largeFeedRef}
           userId={answererUuid}
+          user={user}
         />
       </div>
     </div>

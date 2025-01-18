@@ -1,6 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useResourceURL } from "../contexts/configContext";
 
+export type User = {
+  uuid: string;
+  image: string;
+  userName: string;
+};
+
 export type Friend = {
   uuid: string;
   userName: string;
@@ -9,16 +15,28 @@ export type Friend = {
   isCalling: boolean;
 };
 
-function FriendCard({ userId, friend }: { userId: string; friend: Friend }) {
+function FriendCard({
+  userId,
+  friend,
+  user,
+}: {
+  userId: string;
+  friend: Friend;
+  user: User;
+}) {
   const navigate = useNavigate();
   const resourceURL = useResourceURL();
 
   const handleCall = () => {
-    navigate(`/offererchat?offerer=${userId}&answerer=${friend.uuid}`);
+    navigate(`/offererchat?offerer=${userId}&answerer=${friend.uuid}`, {
+      state: { user },
+    });
   };
 
   const handleAnswer = () => {
-    navigate(`/answererchat?offerer=${friend.uuid}&answerer=${userId}`);
+    navigate(`/answererchat?offerer=${friend.uuid}&answerer=${userId}`, {
+      state: { user },
+    });
   };
 
   return (

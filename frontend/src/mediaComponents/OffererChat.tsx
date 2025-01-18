@@ -8,7 +8,7 @@ import {
   useUpdateCallStatus,
 } from "../contexts/callStatusContext";
 import getSocket from "../utils/getSocket";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import offererListeners from "../utils/offererListeners";
 import HangUpButton from "./HangUpButton";
 
@@ -22,6 +22,7 @@ function OffererChat() {
   const updateCallStatus = useUpdateCallStatus();
   const offererUuid = searchParams.get("offerer");
   const answererUuid = searchParams.get("answerer");
+  const { state: user } = useLocation();
 
   if (!offererUuid) {
     throw new Error("offererUuid is null");
@@ -144,6 +145,7 @@ function OffererChat() {
           smallFeedRef={smallFeedRef}
           largeFeedRef={largeFeedRef}
           userId={offererUuid}
+          user={user}
         />
       </div>
     </div>

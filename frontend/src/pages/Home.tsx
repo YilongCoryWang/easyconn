@@ -7,11 +7,12 @@ import { useResourceURL } from "../contexts/configContext";
 
 function Home() {
   const {
-    state: { uuid, image, userName },
+    state: { user },
   } = useLocation();
   const [friendList, setFriendList] = useState<Friend[] | null>(null);
   const updateCallStatus = useUpdateCallStatus();
   const resourceURL = useResourceURL();
+  const { uuid, image, userName } = user;
 
   useEffect(() => {
     const socket = getSocket(uuid);
@@ -47,7 +48,7 @@ function Home() {
         <div className="flex flex-col justify-center items-center text-slate-900 space-y-3">
           {friendList &&
             friendList.map((f) => (
-              <FriendCard key={f.uuid} userId={uuid} friend={f} />
+              <FriendCard key={f.uuid} userId={uuid} friend={f} user={user} />
             ))}
         </div>
       </div>

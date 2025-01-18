@@ -5,10 +5,9 @@ import newOfferListener from "./eventHandlers/newOfferListener";
 import offererIceToServerListener from "./eventHandlers/offererIceToServerListener";
 import newAnswerListener from "./eventHandlers/newAnswerListener";
 import answererIceToServerListener from "./eventHandlers/answererIceToServerListener";
-import { error } from "console";
 import mongoose from "mongoose";
 
-type Offer = {
+type CallingInfo = {
   offererUuid: string;
   offer: RTCSessionDescriptionInit | null;
   offererIce: RTCIceCandidate[];
@@ -17,14 +16,14 @@ type Offer = {
   answererIce: RTCIceCandidate[];
 };
 
-export const offers: Offer[] = [];
+export let callings: CallingInfo[] = [];
 
 type User = {
   uuid: string;
   socketId: string;
 };
 
-export const connectedUsers: User[] = [];
+export let connectedUsers: User[] = [];
 
 export type Friend = {
   _id?: typeof mongoose.Schema.ObjectId;
@@ -34,9 +33,9 @@ export type Friend = {
   image: string;
 };
 
-export function findOffer(offererUuid: string, answererUuid: string) {
-  return offers.find(
-    (o: Offer) =>
+export function findCallingInfo(offererUuid: string, answererUuid: string) {
+  return callings.find(
+    (o: CallingInfo) =>
       o.offererUuid === offererUuid && o.answererUuid === answererUuid
   );
 }
@@ -65,11 +64,11 @@ const connectionHandler = async (socket: Socket) => {
 
   socket.emit("updateFriendList", await findFriends(uuid));
 
-  //loop through all known offers and send out to the professional who just joined
-  //the offers that belong to him
-  const offerWaiting = offers.find((o) => o.answererUuid === uuid);
-  if (!!offerWaiting) {
-    socket.emit("newOfferWaiting", offerWaiting.offer);
+  //loop through all known callingInfo and send out to the answerer who just joined
+  //the calling that belong to him
+  const calling = callings.find((o) => o.answererUuid === uuid);
+  if (!!calling) {
+    socket.emit("newOfferWaiting", calling.offer);
     console.log("emit newOfferWaiting", uuid, socket.id);
   }
 
@@ -78,8 +77,19 @@ const connectionHandler = async (socket: Socket) => {
   newAnswerListener(socket);
   answererIceToServerListener(socket);
 
+  socket.on("hangup", async ({ userId }) => {
+    console.log("hangup", userId);
+    callings = callings.filter(({ offererUuid, answererUuid }) => {
+      offererUuid !== userId && answererUuid !== userId;
+    });
+    const r = await User.findByIdAndUpdate(userId, { isCalling: false });
+  });
+
   socket.on("disconnect", (reason) => {
-    console.log("disconnect, reason", reason, socket.id);
+    connectedUsers = connectedUsers.filter(
+      ({ socketId }) => socketId !== socket.id
+    );
+    console.log("disconnect, reason", reason, socket.id, connectedUsers);
   });
 };
 

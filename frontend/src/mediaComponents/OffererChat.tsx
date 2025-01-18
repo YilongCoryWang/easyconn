@@ -10,6 +10,7 @@ import {
 import getSocket from "../utils/getSocket";
 import { useSearchParams } from "react-router-dom";
 import offererListeners from "../utils/offererListeners";
+import HangUpButton from "./HangUpButton";
 
 function OffererChat() {
   const [searchParams] = useSearchParams();
@@ -139,6 +140,11 @@ function OffererChat() {
       <div className="flex justify-around text-2xl items-center absolute w-full h-20 bottom-0 bg-slate-900">
         <AudioButton />
         <VideoButton smallFeedRef={smallFeedRef} />
+        <HangUpButton
+          smallFeedRef={smallFeedRef}
+          largeFeedRef={largeFeedRef}
+          userId={offererUuid}
+        />
       </div>
     </div>
   );

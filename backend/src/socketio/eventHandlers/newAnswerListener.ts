@@ -1,8 +1,9 @@
 import { Socket } from "socket.io";
-import { connectedUsers, findOffer } from "../runSocketIOServer";
+import { connectedUsers, findCallingInfo } from "../runSocketIOServer";
+import User from "../../models/user";
 
 const newAnswerListener = (socket: Socket) => {
-  const eventHandler = ({
+  const eventHandler = async ({
     answer,
     offererUuid,
     answererUuid,
@@ -12,10 +13,19 @@ const newAnswerListener = (socket: Socket) => {
     answererUuid: string;
   }) => {
     console.log("newAnswer", offererUuid, answererUuid);
-    const offer = findOffer(offererUuid, answererUuid);
-    if (offer) {
-      offer.answer = answer;
+    const callingInfo = findCallingInfo(offererUuid, answererUuid);
+    if (callingInfo) {
+      callingInfo.answer = answer;
+    } else {
+      console.error(
+        "Cannot find existing CallingInfo of",
+        offererUuid,
+        answererUuid
+      );
+      return;
     }
+
+    await User.findByIdAndUpdate(answererUuid, { isCalling: true });
 
     const offererSocket = connectedUsers.find((c) => c.uuid === offererUuid);
     if (offererSocket) {

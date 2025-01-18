@@ -10,7 +10,10 @@ const createPeerConnection = async (
   const remoteStream = new MediaStream();
 
   peerConnection.addEventListener("icecandidate", (e) => {
-    console.log("icecandidate event", e);
+    console.log(`icecandidate ${event}`, e);
+    if (!e.candidate) {
+      return;
+    }
     const socketUuid =
       event === "offererIceToServer" ? offererUuid : answererUuid;
     const socket = getSocket(socketUuid);
@@ -22,8 +25,9 @@ const createPeerConnection = async (
   });
 
   peerConnection.addEventListener("track", (e) => {
-    console.log("Track event...", e);
+    console.log("Track event...");
     e.streams[0].getTracks().forEach((track) => {
+      console.log("Adding remote track");
       remoteStream.addTrack(track);
     });
   });

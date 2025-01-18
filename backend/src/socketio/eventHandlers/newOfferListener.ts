@@ -1,8 +1,7 @@
 import {
-  findOffer,
-  offers,
+  findCallingInfo,
+  callings,
   connectedUsers,
-  findFriends,
 } from "../runSocketIOServer";
 import User from "../../models/user";
 import { Socket } from "socket.io";
@@ -22,11 +21,11 @@ const newOfferListener = (socket: Socket) => {
       return;
     }
     console.log("received newOffer", offererUuid, answererUuid);
-    const existingOffer = findOffer(offererUuid, answererUuid);
-    if (existingOffer) {
-      existingOffer.offer = offer;
+    const existingCallingInfo = findCallingInfo(offererUuid, answererUuid);
+    if (existingCallingInfo) {
+      existingCallingInfo.offer = offer;
     } else {
-      const newOffer = {
+      const newCalling = {
         offererUuid,
         offer,
         offererIce: [],
@@ -34,7 +33,7 @@ const newOfferListener = (socket: Socket) => {
         answer: null,
         answererIce: [],
       };
-      offers.push(newOffer);
+      callings.push(newCalling);
     }
 
     //update isCalling
@@ -53,8 +52,18 @@ const newOfferListener = (socket: Socket) => {
         socket
           .to(answerer.socketId)
           .emit("updateFriendList", answererWithFriends.friends);
+        console.log("send updateFriendList", answererUuid);
+      } else {
+        console.error(
+          `updateFriendList: Cannot find answererWithFriends: ${answererUuid}`,
+          answererWithFriends
+        );
       }
-      console.log("send updateFriendList", answererUuid);
+    } else {
+      console.error(
+        `updateFriendList: Cannot find ${answererUuid}`,
+        connectedUsers
+      );
     }
   };
 

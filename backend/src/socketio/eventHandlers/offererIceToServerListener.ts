@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { connectedUsers, findOffer } from "../runSocketIOServer";
+import { connectedUsers, findCallingInfo } from "../runSocketIOServer";
 
 const offererIceToServerListener = (socket: Socket) => {
   const eventHandler = ({
@@ -12,11 +12,16 @@ const offererIceToServerListener = (socket: Socket) => {
     answererUuid: string;
   }) => {
     console.log("receved: offererIceToServer");
-    const existingOffer = findOffer(offererUuid, answererUuid);
-    if (!existingOffer) {
+    const existingCallingInfo = findCallingInfo(offererUuid, answererUuid);
+    if (!existingCallingInfo) {
+      console.error(
+        "Cannot find existing CallingInfo of",
+        offererUuid,
+        answererUuid
+      );
       return;
     }
-    existingOffer.offererIce.push(ice);
+    existingCallingInfo.offererIce.push(ice);
 
     const answerer = connectedUsers.find((u) => u.uuid === answererUuid);
     if (!answerer) {

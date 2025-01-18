@@ -171,7 +171,11 @@ function AnswererChat() {
       <div className="flex justify-around text-2xl items-center absolute w-full h-20 bottom-0 bg-slate-900">
         <AudioButton />
         <VideoButton smallFeedRef={smallFeedRef} />
-        <HangUpButton smallFeedRef={smallFeedRef} largeFeedRef={largeFeedRef} />
+        <HangUpButton
+          smallFeedRef={smallFeedRef}
+          largeFeedRef={largeFeedRef}
+          userId={answererUuid}
+        />
       </div>
     </div>
   );

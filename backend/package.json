@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config src/server.ts dotenv_config_path=config.env",
-    "migratedb": "NODE_ENV=migratedb ts-node -r dotenv/config mongodb/seed.ts --import dotenv_config_path=config.env",
+    "migratedb": "ts-node -r dotenv/config mongodb/seed.ts --import dotenv_config_path=config.env",
     "migratedb:remove": "ts-node -r dotenv/config mongodb/seed.ts --delete dotenv_config_path=config.env",
     "prod": "NODE_ENV=production nodemon -r dotenv/config src/server.ts dotenv_config_path=config.env",
     "build": "tsc",

@@ -59,4 +59,3 @@ npm start
 ## Todo
 
 Improve db operations
-Improve hangup button

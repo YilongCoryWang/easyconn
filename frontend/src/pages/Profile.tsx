@@ -6,7 +6,7 @@ function Profile() {
   const navigate = useNavigate();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { state: user } = useLocation();
-  const { email, userName, uuid } = user;
+  const { email, name, uuid } = user;
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {
@@ -66,19 +66,19 @@ function Profile() {
             </p>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="userName" className="font-medium">
+                <label htmlFor="name" className="font-medium">
                   User Name
                 </label>
                 <input
-                  id="userName"
+                  id="name"
                   className="w-full border-2 rounded focus:outline-none h-10 p-6 text-gray-500"
                   type="text"
-                  defaultValue={userName}
+                  defaultValue={name}
                   name="name"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="userName" className="font-medium">
+                <label htmlFor="name" className="font-medium">
                   Email
                 </label>
                 <input

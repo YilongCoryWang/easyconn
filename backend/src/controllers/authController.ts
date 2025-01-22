@@ -57,7 +57,7 @@ export const login = catchAsync(
     res.status(200).json({
       status: "success",
       token,
-      data: { user: { uuid, image, email, userName: name } },
+      data: { user: { uuid, image, email, name } },
     });
   }
 );
@@ -80,7 +80,7 @@ export const signup = catchAsync(
       user: {
         email: newUser.email,
         image: newUser.image,
-        userName: newUser.name,
+        user: newUser.name,
         uuid: newUser._id.toHexString(),
       },
     };

@@ -13,7 +13,7 @@ function Home() {
   const updateCallStatus = useUpdateCallStatus();
   const resourceURL = useResourceURL();
   const navigate = useNavigate();
-  const { uuid, image, userName } = user;
+  const { uuid, image, name } = user;
 
   useEffect(() => {
     if (friendList === null) {
@@ -52,10 +52,10 @@ function Home() {
             <img
               className="w-16 h-16"
               src={`${resourceURL}/${image}`}
-              alt={`${userName}-image`}
+              alt={`${name}-image`}
             />
           )}
-          <h1 className="text-2xl">Welcome{userName && ` ${userName}`}!</h1>
+          <h1 className="text-2xl">Welcome{name && ` ${name}`}!</h1>
         </div>
         <h3 className="text-lg">Now you can video chat with friends:</h3>
         {/* <div className="flex flex-row justify-center items-center"> */}

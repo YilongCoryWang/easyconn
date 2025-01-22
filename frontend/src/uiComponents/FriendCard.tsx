@@ -4,12 +4,12 @@ import { useResourceURL } from "../contexts/configContext";
 export type User = {
   uuid: string;
   image: string;
-  userName: string;
+  name: string;
 };
 
 export type Friend = {
   uuid: string;
-  userName: string;
+  name: string;
   email: string;
   image: string;
   isCalling: boolean;
@@ -47,10 +47,10 @@ function FriendCard({
         <img
           className="w-16 h-16 rounded-full bg-slate-300"
           src={`${resourceURL}/${friend.image}`}
-          alt={`${friend.userName}-profile`}
+          alt={`${friend.name}-profile`}
         />
         <div className="flex flex-col justify-start items-center space-y-3">
-          <h1 className="text-xl font-bold">{friend.userName}</h1>
+          <h1 className="text-xl font-bold">{friend.name}</h1>
           <h3 className="font-medium">{friend.email}</h3>
         </div>
       </div>

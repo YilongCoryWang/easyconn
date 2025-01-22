@@ -19,7 +19,7 @@ function Login() {
       }
       const email = emailRef.current.value;
       const password = passwordRef.current.value;
-      const res = await apiBase.post("/api/vi/users/login", {
+      const res = await apiBase.post("/api/v1/users/login", {
         email,
         password,
       });

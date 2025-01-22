@@ -3,7 +3,7 @@ import { ConfigContext } from "./configContext";
 
 function ConfigContextProvider({ children }: { children: ReactNode }) {
   const value = {
-    resourceURL: "http://localhost:9000/assets",
+    resourceURL: "http://localhost:9000/assets/img/user",
   };
   return (
     <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>

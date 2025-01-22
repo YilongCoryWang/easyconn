@@ -28,7 +28,7 @@ function Signup() {
       const email = emailRef.current.value;
       const password = passwordRef.current.value;
       const passwordConfirm = passwordConfirmRef.current.value;
-      const res = await apiBase.post("/api/vi/users/signup", {
+      const res = await apiBase.post("/api/v1/users/signup", {
         name,
         email,
         password,

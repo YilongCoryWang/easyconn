@@ -20,7 +20,7 @@ function ResetPassword() {
       }
       const password = passwordRef.current.value;
       const passwordConfirm = passwordConfirmRef.current.value;
-      const res = await apiBase.post(`/api/vi/users/reset-password/${token}`, {
+      const res = await apiBase.post(`/api/v1/users/reset-password/${token}`, {
         password,
         passwordConfirm,
       });

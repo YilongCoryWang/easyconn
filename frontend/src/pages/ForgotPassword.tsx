@@ -13,7 +13,7 @@ function ForgotPassword() {
         return;
       }
       const email = emailRef.current.value;
-      const res = await apiBase.post("/api/vi/users/forgot-password", {
+      const res = await apiBase.post("/api/v1/users/forgot-password", {
         email,
       });
 

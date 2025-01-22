@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import getSocket from "../utils/getSocket";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FriendCard, { type Friend } from "../uiComponents/FriendCard";
 import { useUpdateCallStatus } from "../contexts/callStatusContext";
 import { useResourceURL } from "../contexts/configContext";
@@ -12,7 +12,14 @@ function Home() {
   const [friendList, setFriendList] = useState<Friend[] | null>(null);
   const updateCallStatus = useUpdateCallStatus();
   const resourceURL = useResourceURL();
+  const navigate = useNavigate();
   const { uuid, image, userName } = user;
+
+  useEffect(() => {
+    if (friendList === null) {
+      setFriendList(user.friends);
+    }
+  }, [friendList, user.friends]);
 
   useEffect(() => {
     const socket = getSocket(uuid);
@@ -27,13 +34,20 @@ function Home() {
     });
   }, [uuid, updateCallStatus]);
 
+  const handleClick = () => {
+    navigate(`/profile/${uuid}`, { state: user });
+  };
+
   return (
     // background
     <div className="flex justify-center w-full min-h-screen bg-cyan-200">
       {/* friends list container */}
       <div className="w-96 h-full bg-cyan-600 text-gray-200 rounded-md shadow-2xl p-3 m-6 space-y-3">
         {/* welcome banner container */}
-        <div className="flex items-center space-x-3">
+        <div
+          className="flex items-center space-x-3 hover:cursor-pointer"
+          onClick={handleClick}
+        >
           {image && (
             <img
               className="w-16 h-16"

@@ -21,10 +21,10 @@ process.on("uncaughtException", (err) => {
 const app = express();
 app.use(cors());
 app.use(cookieParser());
-app.use("/assets", express.static("public"));
+app.use("/assets", express.static("assets"));
 app.use(express.json({ limit: "10kb" }));
 
-//sanitize NoSql query injection: curl -d '{"name": "Yilong", "email":{"$gt": ""}, "password":"test1234"}' -H "Content-Type: application/json" -X POST http://localhost:9000/api/vi/users/login
+//sanitize NoSql query injection: curl -d '{"name": "Yilong", "email":{"$gt": ""}, "password":"test1234"}' -H "Content-Type: application/json" -X POST http://localhost:9000/api/v1/users/login
 app.use(mongoSanitize());
 
 //sanitize XSS attack
@@ -41,7 +41,7 @@ const limiter = rateLimit({
   message: "Too many reqeusts, please try again later",
 });
 app.use("/api", limiter); // Apply the rate limiting middleware to /api requests.
-app.use("/api/vi/users", userRouter);
+app.use("/api/v1/users", userRouter);
 app.all("*", (req, res, next) => {
   next(
     new AppError(

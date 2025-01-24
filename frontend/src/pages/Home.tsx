@@ -62,9 +62,17 @@ function Home() {
         <div className="flex flex-col justify-center items-center text-slate-900 space-y-3">
           {friendList &&
             friendList.map((f) => (
-              <FriendCard key={f.uuid} userId={uuid} friend={f} user={user} />
+              <FriendCard key={f.uuid} friend={f} user={user} />
             ))}
         </div>
+        <button
+          className="bg-blue-700 rounded text-gray-100 font-bold text-lg p-2 hover:bg-blue-600 shadow transition"
+          onClick={() =>
+            navigate("/user-list", { state: { currentUser: user } })
+          }
+        >
+          See who's here
+        </button>
       </div>
     </div>
   );

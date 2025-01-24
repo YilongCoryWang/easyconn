@@ -23,8 +23,9 @@ function Login() {
         email,
         password,
       });
-      const { status, data } = res.data;
+      const { status, token, data } = res.data;
       if (status === "success") {
+        localStorage.setItem("token", token);
         navigate("/home", { state: { user: data.user } });
       }
     } catch (error) {

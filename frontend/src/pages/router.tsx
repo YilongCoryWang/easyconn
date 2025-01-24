@@ -7,6 +7,7 @@ import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import OffererChat from "../mediaComponents/OffererChat";
 import AnswererChat from "../mediaComponents/AnswererChat";
+import UserList from "./UserList";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
   { path: "/profile/:uuid", element: <Profile /> },
   { path: "/offererchat", element: <OffererChat /> },
   { path: "/answererchat", element: <AnswererChat /> },
+  { path: "/user-list", element: <UserList /> },
 ]);
 
 export default router;

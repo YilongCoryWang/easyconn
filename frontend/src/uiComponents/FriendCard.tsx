@@ -15,26 +15,19 @@ export type Friend = {
   isCalling: boolean;
 };
 
-function FriendCard({
-  userId,
-  friend,
-  user,
-}: {
-  userId: string;
-  friend: Friend;
-  user: User;
-}) {
+function FriendCard({ friend, user }: { friend: Friend; user: User }) {
   const navigate = useNavigate();
   const resourceURL = useResourceURL();
 
+  console.log(user);
   const handleCall = () => {
-    navigate(`/offererchat?offerer=${userId}&answerer=${friend.uuid}`, {
+    navigate(`/offererchat?offerer=${user.uuid}&answerer=${friend.uuid}`, {
       state: { user },
     });
   };
 
   const handleAnswer = () => {
-    navigate(`/answererchat?offerer=${friend.uuid}&answerer=${userId}`, {
+    navigate(`/answererchat?offerer=${friend.uuid}&answerer=${user.uuid}`, {
       state: { user },
     });
   };

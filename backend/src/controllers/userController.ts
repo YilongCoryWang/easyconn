@@ -20,7 +20,10 @@ export const getUser = catchAsync(
 
 export const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await User.find();
+    const users = await User.find(
+      { role: { $ne: "admin" } },
+      "-friends -__v -role"
+    );
     if (users.length === 0) {
       return next(new AppError("No user found.", 404));
     }

@@ -14,8 +14,10 @@ const signToken = (payload: object, secret: string, expiresIn: string) => {
 
 function setCookie(res: Response, expiresIn: string, token: string) {
   return res.cookie("token", token, {
-    httpOnly: true,
+    httpOnly: true, //can only be read by server, not by client
     expires: new Date(Date.now() + parseInt(expiresIn) * 24 * 60 * 60 * 1000),
+    secure: true, //https only
+    sameSite: "none",
   });
 }
 

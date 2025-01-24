@@ -25,6 +25,6 @@ router
   .route("/:id")
   .get(auth, getUser)
   .delete(auth, isAdmin, deleteUser)
-  .patch(uploadProfileImage, updateUser);
+  .patch(auth, uploadProfileImage, updateUser);
 
 export default router;

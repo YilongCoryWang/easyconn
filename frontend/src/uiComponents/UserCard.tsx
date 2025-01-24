@@ -1,7 +1,13 @@
 import { useResourceURL } from "../contexts/configContext";
 import { User } from "../pages/UserList";
 
-function UserCard({ user }: { user: User }) {
+function UserCard({
+  user,
+  addFriend,
+}: {
+  user: User;
+  addFriend: (userId: string) => void;
+}) {
   const resourceURL = useResourceURL();
 
   return (
@@ -19,6 +25,12 @@ function UserCard({ user }: { user: User }) {
           <h3 className="font-medium">{user.email}</h3>
         </div>
       </div>
+      <button
+        className="bg-blue-700 rounded text-gray-100 font-bold text-lg p-2 hover:bg-blue-600 shadow transition"
+        onClick={() => addFriend(user.uuid)}
+      >
+        Add Friend
+      </button>
     </div>
   );
 }

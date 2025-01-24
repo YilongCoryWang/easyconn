@@ -8,6 +8,7 @@ import {
   resetPassword,
 } from "../controllers/authController";
 import {
+  addFriend,
   getUser,
   getAllUsers,
   deleteUser,
@@ -20,11 +21,14 @@ router.post("/login", login);
 router.post("/signup", signup);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
-router.get("/", auth, getAllUsers);
+
+router.use(auth);
+router.get("/", getAllUsers);
 router
   .route("/:id")
-  .get(auth, getUser)
-  .delete(auth, isAdmin, deleteUser)
-  .patch(auth, uploadProfileImage, updateUser);
+  .get(getUser)
+  .delete(isAdmin, deleteUser)
+  .patch(uploadProfileImage, updateUser);
+router.post("/add-friend", addFriend);
 
 export default router;

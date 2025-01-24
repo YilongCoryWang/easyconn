@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiBase from "../utils/apiBase";
 import UserCard from "../uiComponents/UserCard";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export type User = {
   email: string;
@@ -21,15 +21,14 @@ type GetUserListResp = {
 
 function UserList() {
   const [userList, setUserList] = useState<User[] | null>(null);
+  const navigate = useNavigate();
   const {
     state: { currentUser },
   } = useLocation();
 
-  console.log(currentUser);
-
   useEffect(() => {
     const getUserList = async () => {
-      const res: GetUserListResp = await apiBase.get("/api/v1/users");
+      const res: GetUserListResp = await apiBase.get("/users");
       const { status, data } = res.data;
       if (status === "success") {
         setUserList(data.users);
@@ -38,6 +37,15 @@ function UserList() {
 
     getUserList();
   }, []);
+
+  const addFriend = async (friendId: string) => {
+    const {
+      data: { status, data },
+    } = await apiBase.post("/users/add-friend", { friendId });
+    if (status === "success") {
+      navigate("/home", { state: { user: data.user } });
+    }
+  };
 
   return (
     // background
@@ -48,7 +56,13 @@ function UserList() {
         <h3 className="text-lg font-bold">All users:</h3>
         {/* <div className="flex flex-row justify-center items-center"> */}
         <div className="flex flex-col justify-center items-center text-slate-900 space-y-3">
-          {userList && userList.map((u) => <UserCard key={u.uuid} user={u} />)}
+          {userList &&
+            userList.map(
+              (u) =>
+                u.uuid !== currentUser.uuid && (
+                  <UserCard key={u.uuid} user={u} addFriend={addFriend} />
+                )
+            )}
         </div>
       </div>
     </div>

@@ -40,7 +40,7 @@ const importData = async () => {
 
 const deleteData = async () => {
   try {
-    await User.deleteMany();
+    await User.collection.drop();
   } catch (error) {
     console.error(error);
   }

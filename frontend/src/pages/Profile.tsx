@@ -34,7 +34,7 @@ function Profile() {
       form.append("email", target.email.value);
       if (imageFile) form.append("image", imageFile);
       // console.log(target.name.value, target.email.value, imageFile, form);
-      const res = await apiBase.patch(`/api/v1/users/${uuid}`, form);
+      const res = await apiBase.patch(`/users/${uuid}`, form);
       const {
         status,
         data: { user },

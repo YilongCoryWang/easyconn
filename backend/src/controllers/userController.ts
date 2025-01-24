@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import User from "../models/user";
 import AppError from "../utils/appError";
-import mongoose from "mongoose";
 
 export const getUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -115,9 +114,20 @@ export const addFriend = catchAsync(async (req: Request, res: Response) => {
     friend.friends.push(user);
     await friend.save();
     user.friends.push(friend);
-    const newUser = await user.save();
-    return res.status(200).json({ status: "success", data: { user: newUser } });
+    let newUser = await user.save();
+    newUser = await newUser.populate({
+      path: "friends",
+      select: "-__v -friends -password",
+    });
+
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user: newUser,
+      },
+    });
   }
+
   return res
     .status(400)
     .json({ status: "fail", message: "Cannot find the requested user" });

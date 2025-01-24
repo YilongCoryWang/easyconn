@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiBase from "../utils/apiBase";
+import useApiBase from "../utils/apiBase";
 
 function ForgotPassword() {
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement | null>(null);
   const [resetEmailSent, setResetEmailSent] = useState<boolean>(false);
+  const apiBase = useApiBase();
 
   const handleForgotPassword = useCallback(async () => {
     try {

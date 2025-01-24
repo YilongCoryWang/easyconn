@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import apiBase from "../utils/apiBase";
+import useApiBase from "../utils/apiBase";
 
 function Profile() {
   const navigate = useNavigate();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { state: user } = useLocation();
   const { email, name, uuid } = user;
+  const apiBase = useApiBase();
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {

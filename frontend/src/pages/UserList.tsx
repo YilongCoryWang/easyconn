@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import apiBase from "../utils/apiBase";
+import useApiBase from "../utils/apiBase";
 import UserCard from "../uiComponents/UserCard";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -25,6 +25,7 @@ function UserList() {
   const {
     state: { currentUser },
   } = useLocation();
+  const apiBase = useApiBase();
 
   useEffect(() => {
     const getUserList = async () => {
@@ -36,7 +37,7 @@ function UserList() {
     };
 
     getUserList();
-  }, []);
+  }, [apiBase]);
 
   const addFriend = async (friendId: string) => {
     const {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import apiBase from "../utils/apiBase";
+import useApiBase from "../utils/apiBase";
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -8,6 +8,7 @@ function ResetPassword() {
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const passwordConfirmRef = useRef<HTMLInputElement | null>(null);
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
+  const apiBase = useApiBase();
   const handleResetPassword = useCallback(async () => {
     try {
       if (

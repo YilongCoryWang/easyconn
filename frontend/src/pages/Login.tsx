@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import apiBase from "../utils/apiBase";
+import useApiBase from "../utils/apiBase";
 
 function Login() {
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
+  const apiBase = useApiBase();
 
   const handleLogin = useCallback(async () => {
     try {

@@ -14,6 +14,7 @@ import {
   deleteUser,
   updateUser,
   uploadProfileImage,
+  resizeProfileImage,
 } from "../controllers/userController";
 
 const router = Router();
@@ -28,7 +29,7 @@ router
   .route("/:id")
   .get(getUser)
   .delete(isAdmin, deleteUser)
-  .patch(uploadProfileImage, updateUser);
+  .patch(uploadProfileImage, resizeProfileImage, updateUser);
 router.post("/add-friend", addFriend);
 
 export default router;

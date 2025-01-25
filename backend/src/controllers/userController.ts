@@ -1,8 +1,9 @@
 import catchAsync from "../utils/catchAsync";
 import { Request, Response, NextFunction } from "express";
-import multer from "multer";
+import multer, { memoryStorage } from "multer";
 import User from "../models/user";
 import AppError from "../utils/appError";
+import sharp from "sharp";
 
 export const getUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -49,22 +50,23 @@ export const deleteUser = catchAsync(
   }
 );
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "assets/img/user");
-  },
-  filename: function (req, file, cb) {
-    const extension = (function () {
-      if (file.mimetype.split("/")[1] === "svg+xml") {
-        return ".svg";
-      } else {
-        return "." + file.mimetype.split("/")[1];
-      }
-    })();
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + extension);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "assets/img/user");
+//   },
+//   filename: function (req, file, cb) {
+//     const extension = (function () {
+//       if (file.mimetype.split("/")[1] === "svg+xml") {
+//         return ".svg";
+//       } else {
+//         return "." + file.mimetype.split("/")[1];
+//       }
+//     })();
+//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     cb(null, file.fieldname + "-" + uniqueSuffix + extension);
+//   },
+// });
+const storage = memoryStorage();
 
 function fileFilter(
   req: Request,
@@ -76,6 +78,21 @@ function fileFilter(
 }
 const upload = multer({ storage, fileFilter });
 export const uploadProfileImage = upload.single("image");
+export const resizeProfileImage = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) return next();
+
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    req.file.filename = req.file.fieldname + "-" + uniqueSuffix + ".jpeg";
+    sharp(req.file.buffer)
+      .resize(500, 500)
+      .toFormat("jpeg")
+      .jpeg({ quality: 90 })
+      .toFile(`assets/img/user/${req.file.filename}`);
+
+    next();
+  }
+);
 
 export const updateUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
